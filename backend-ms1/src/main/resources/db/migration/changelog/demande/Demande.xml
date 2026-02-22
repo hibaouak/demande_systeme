@@ -1,0 +1,83 @@
+<!-- db/changelog-1.1-container.xml -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+  <!-- Create Container Table -->
+    <changeSet id="1" author="your-name">
+    <createTable tableName="demande">
+      <column name="id" type="BIGINT">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+        <column name="numero" type="VARCHAR(500)"/>
+        <column name="adresse" type="VARCHAR(500)"/>
+        <column name="date_affectation" type="TIMESTAMP"/>
+        <column name="date_annulation" type="TIMESTAMP"/>
+        <column name="date_cloture" type="TIMESTAMP"/>
+        <column name="date_traitement" type="TIMESTAMP"/>
+        <column name="en_attente_retour_client" type="TINYINT"/>
+
+        <column name="motif_demande_id" type="BIGINT">
+          <constraints nullable="false"/>
+        </column>
+        <column name="action_demande_id" type="BIGINT">
+          <constraints nullable="false"/>
+        </column>
+        <column name="client_id" type="BIGINT">
+          <constraints nullable="false"/>
+        </column>
+
+    </createTable>
+  </changeSet>
+
+    <!-- Add foreign key constraint -->
+  <changeSet id="2" author="your-name">
+      <addForeignKeyConstraint
+              baseTableName="demande"
+              baseColumnNames="motif_demande_id"
+              referencedTableName="motif_demande"
+              referencedColumnNames="id"
+              constraintName="fk_demande_motif_demande"/>
+      <addForeignKeyConstraint
+              baseTableName="demande"
+              baseColumnNames="action_demande_id"
+              referencedTableName="action_demande"
+              referencedColumnNames="id"
+              constraintName="fk_demande_action_demande"/>
+      <addForeignKeyConstraint
+              baseTableName="demande"
+              baseColumnNames="client_id"
+              referencedTableName="client"
+              referencedColumnNames="id"
+              constraintName="fk_demande_client"/>
+
+  </changeSet>
+
+    <!-- Create Sequence for ContainerType -->
+  <changeSet id="3" author="your-name">
+    <createSequence sequenceName="demande_seq" startValue="1" incrementBy="1"/>
+  </changeSet>
+
+  <!-- Load Data from CSV -->
+  <changeSet id="4" author="your-name">
+    <loadData
+            file="classpath:/db/migration/data/demande/Demande.csv"
+            tableName="demande">
+      <column name="id" type="NUMERIC"/>
+          <column name="numero" type="STRING"/>
+          <column name="adresse" type="STRING"/>
+          <column name="date_affectation" type="TIMESTAMP"/>
+          <column name="date_annulation" type="TIMESTAMP"/>
+          <column name="date_cloture" type="TIMESTAMP"/>
+          <column name="date_traitement" type="TIMESTAMP"/>
+          <column name="en_attente_retour_client" type="BOOLEAN"/>
+        <column name="motif_demande" type="BIGINT"/>
+        <column name="action_demande" type="BIGINT"/>
+        <column name="client" type="BIGINT"/>
+    </loadData>
+  </changeSet>
+
+
+</databaseChangeLog>

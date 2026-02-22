@@ -1,0 +1,361 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'https'
+paths:
+  /demandes:
+    get:
+      summary: List all demandes
+      operationId: listDemandes
+      tags:
+        - demandes
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: A paged array of demandes
+          headers:
+            x-next:
+              type: string
+              description: A link to the next page of responses
+          schema:
+            $ref: '#/definitions/Demandes'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Create a demande
+      operationId: createDemandes
+      tags:
+        - demandes
+      responses:
+        "201":
+          description: Null response
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /demandes/{demandeId}:
+    get:
+      summary: Info for a specific demande
+      operationId: showDemandeById
+      tags:
+        - demandes
+      parameters:
+        - name: demandeId
+          in: path
+          required: true
+          description: The id of the demande to retrieve
+          type: string
+      responses:
+        "200":
+          description: Expected response to a valid request
+          schema:
+            $ref: '#/definitions/Demandes'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /actionDemandes:
+    get:
+      summary: List all actionDemandes
+      operationId: listActionDemandes
+      tags:
+        - actionDemandes
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: A paged array of actionDemandes
+          headers:
+            x-next:
+              type: string
+              description: A link to the next page of responses
+          schema:
+            $ref: '#/definitions/ActionDemandes'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Create a actionDemande
+      operationId: createActionDemandes
+      tags:
+        - actionDemandes
+      responses:
+        "201":
+          description: Null response
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /actionDemandes/{actionDemandeId}:
+    get:
+      summary: Info for a specific actionDemande
+      operationId: showActionDemandeById
+      tags:
+        - actionDemandes
+      parameters:
+        - name: actionDemandeId
+          in: path
+          required: true
+          description: The id of the actionDemande to retrieve
+          type: string
+      responses:
+        "200":
+          description: Expected response to a valid request
+          schema:
+            $ref: '#/definitions/ActionDemandes'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /clients:
+    get:
+      summary: List all clients
+      operationId: listClients
+      tags:
+        - clients
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: A paged array of clients
+          headers:
+            x-next:
+              type: string
+              description: A link to the next page of responses
+          schema:
+            $ref: '#/definitions/Clients'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Create a client
+      operationId: createClients
+      tags:
+        - clients
+      responses:
+        "201":
+          description: Null response
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /clients/{clientId}:
+    get:
+      summary: Info for a specific client
+      operationId: showClientById
+      tags:
+        - clients
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          description: The id of the client to retrieve
+          type: string
+      responses:
+        "200":
+          description: Expected response to a valid request
+          schema:
+            $ref: '#/definitions/Clients'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /motifDemandes:
+    get:
+      summary: List all motifDemandes
+      operationId: listMotifDemandes
+      tags:
+        - motifDemandes
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: A paged array of motifDemandes
+          headers:
+            x-next:
+              type: string
+              description: A link to the next page of responses
+          schema:
+            $ref: '#/definitions/MotifDemandes'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Create a motifDemande
+      operationId: createMotifDemandes
+      tags:
+        - motifDemandes
+      responses:
+        "201":
+          description: Null response
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /motifDemandes/{motifDemandeId}:
+    get:
+      summary: Info for a specific motifDemande
+      operationId: showMotifDemandeById
+      tags:
+        - motifDemandes
+      parameters:
+        - name: motifDemandeId
+          in: path
+          required: true
+          description: The id of the motifDemande to retrieve
+          type: string
+      responses:
+        "200":
+          description: Expected response to a valid request
+          schema:
+            $ref: '#/definitions/MotifDemandes'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  
+
+
+definitions:
+  Demande:
+    type: "object"
+    required:
+      - id
+      - numero
+      - adresse
+      - dateAffectation
+      - dateAnnulation
+      - dateCloture
+      - dateTraitement
+      - enAttenteRetourClient
+    properties:
+      id:
+        type: int
+      numero:
+        type: string
+      adresse:
+        type: string
+      dateAffectation:
+        type: date
+      dateAnnulation:
+        type: date
+      dateCloture:
+        type: date
+      dateTraitement:
+        type: date
+      enAttenteRetourClient:
+        type: boolean
+  Demandes:
+    type: array
+    items:
+      $ref: '#/definitions/Demande'
+  ActionDemande:
+    type: "object"
+    required:
+      - id
+      - code
+      - libelle
+      - description
+      - actif
+    properties:
+      id:
+        type: int
+      code:
+        type: string
+      libelle:
+        type: string
+      description:
+        type: string
+      actif:
+        type: boolean
+  ActionDemandes:
+    type: array
+    items:
+      $ref: '#/definitions/ActionDemande'
+  Client:
+    type: "object"
+    required:
+      - id
+      - code
+      - libelle
+      - description
+      - actif
+    properties:
+      id:
+        type: int
+      code:
+        type: string
+      libelle:
+        type: string
+      description:
+        type: string
+      actif:
+        type: boolean
+  Clients:
+    type: array
+    items:
+      $ref: '#/definitions/Client'
+  MotifDemande:
+    type: "object"
+    required:
+      - id
+      - code
+      - libelle
+      - description
+      - actif
+    properties:
+      id:
+        type: int
+      code:
+        type: string
+      libelle:
+        type: string
+      description:
+        type: string
+      actif:
+        type: boolean
+  MotifDemandes:
+    type: array
+    items:
+      $ref: '#/definitions/MotifDemande'
+
+  Error:
+    type: "object"
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string

@@ -1,0 +1,179 @@
+{
+    "from-to": "Elements from {first} to {last} (total {totalRecords})",
+    "new" : "New",
+    "search": "Search",
+    "export": "Export",
+    "validate": "Validate",
+    "search": "Seach...",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "creation": "Creation",
+    "list": "List",
+	"actionPermission":{
+        "reference": "Reference",
+        "libelle": "Libelle",
+        "actionPermission": "Action permission",
+        "tabPan": "Action permission",
+        "header": "Liste des action permissions",
+        "deleteActionPermissionConfirmationMessage": "Are you sure you want to delete action permission",
+        "deleteActionPermissionsConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+    "modelPermissionUser":{
+        "actionPermission": "Action permission",
+        "actionPermissionPlaceHolder": "Select a Action permission",
+        "actionPermissionPlaceHolderFilter": "Search by Action permission",
+        "modelPermission": "Model permission",
+        "modelPermissionPlaceHolder": "Select a Model permission",
+        "modelPermissionPlaceHolderFilter": "Search by Model permission",
+        "value": "Value",
+        "user": "User",
+        "userPlaceHolder": "Select a User",
+        "userPlaceHolderFilter": "Search by User",
+        "subAttribute": "Sub attribute",
+        "modelPermissionUser": "Model permission user",
+        "tabPan": "Model permission user",
+        "header": "Liste des model permission users",
+        "deleteModelPermissionUserConfirmationMessage": "Are you sure you want to delete model permission user",
+        "deleteModelPermissionUsersConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+    "role":{
+        "authority": "Authority",
+        "role": "Role",
+        "tabPan": "Role",
+        "header": "Liste des roles",
+        "deleteRoleConfirmationMessage": "Are you sure you want to delete role",
+        "deleteRolesConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+
+    "roleUser":{
+        "role": "Role",
+        "rolePlaceHolder": "Select a Role",
+        "rolePlaceHolderFilter": "Search by Role",
+        "user": "User",
+        "userPlaceHolder": "Select a User",
+        "userPlaceHolderFilter": "Search by User",
+        "roleUser": "Role user",
+        "tabPan": "Role user",
+        "header": "Liste des role users",
+        "deleteRoleUserConfirmationMessage": "Are you sure you want to delete role user",
+        "deleteRoleUsersConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+    "user":{
+        "credentialsNonExpired": "Credentials non expired",
+        "enabled": "Enabled",
+        "email": "Email",
+        "accountNonExpired": "Account non expired",
+        "accountNonLocked": "Account non locked",
+        "username": "Username",
+        "password": "Password",
+        "passwordChanged": "Password changed",
+        "modelPermissionUsers": "Model permission users",
+        "roleUsers": "Role users",
+        "RoleUsersPlaceHolder": "Select multiple Roles",
+        "user": "User",
+        "tabPan": "User",
+        "header": "Liste des users",
+        "deleteUserConfirmationMessage": "Are you sure you want to delete user",
+        "deleteUsersConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+    "modelPermission":{
+        "reference": "Reference",
+        "libelle": "Libelle",
+        "modelPermission": "Model permission",
+        "tabPan": "Model permission",
+        "header": "Liste des model permissions",
+        "deleteModelPermissionConfirmationMessage": "Are you sure you want to delete model permission",
+        "deleteModelPermissionsConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+
+    "demande":{
+        "motifDemande": "Motif demande",
+        "motifDemandePlaceHolder": "Select a Motif demande",
+        "motifDemandePlaceHolderFilter": "Search by Motif demande",
+        "actionDemande": "Action demande",
+        "actionDemandePlaceHolder": "Select a Action demande",
+        "actionDemandePlaceHolderFilter": "Search by Action demande",
+        "numero": "Numero",
+        "adresse": "Adresse",
+        "dateAffectation": "Date affectation",
+        "dateAffectationMin": "Date affectation Min",
+        "dateAffectationMax": "Date affectation Max",
+        "dateAnnulation": "Date annulation",
+        "dateAnnulationMin": "Date annulation Min",
+        "dateAnnulationMax": "Date annulation Max",
+        "dateCloture": "Date cloture",
+        "dateClotureMin": "Date cloture Min",
+        "dateClotureMax": "Date cloture Max",
+        "dateTraitement": "Date traitement",
+        "dateTraitementMin": "Date traitement Min",
+        "dateTraitementMax": "Date traitement Max",
+        "enAttenteRetourClient": "En attente retour client",
+        "client": "Client",
+        "clientPlaceHolder": "Select a Client",
+        "clientPlaceHolderFilter": "Search by Client",
+        "demande": "Demande",
+        "tabPan": "Demande",
+        "header": "Liste des demandes",
+        "deleteDemandeConfirmationMessage": "Are you sure you want to delete demande",
+        "deleteDemandesConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+    "actionDemande":{
+        "code": "Code",
+        "libelle": "Libelle",
+        "description": "Description",
+        "actif": "Actif",
+        "actionDemande": "Action demande",
+        "tabPan": "Action demande",
+        "header": "Liste des action demandes",
+        "deleteActionDemandeConfirmationMessage": "Are you sure you want to delete action demande",
+        "deleteActionDemandesConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+    "client":{
+        "code": "Code",
+        "libelle": "Libelle",
+        "description": "Description",
+        "actif": "Actif",
+        "client": "Client",
+        "tabPan": "Client",
+        "header": "Liste des clients",
+        "deleteClientConfirmationMessage": "Are you sure you want to delete client",
+        "deleteClientsConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+
+    "motifDemande":{
+        "code": "Code",
+        "libelle": "Libelle",
+        "description": "Description",
+        "actif": "Actif",
+        "motifDemande": "Motif demande",
+        "tabPan": "Motif demande",
+        "header": "Liste des motif demandes",
+        "deleteMotifDemandeConfirmationMessage": "Are you sure you want to delete motif demande",
+        "deleteMotifDemandesConfirmationMessage": "Are you sure you want to delete the selected elements"
+    },
+
+"appName": "GED"
+}
+
+

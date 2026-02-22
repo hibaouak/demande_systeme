@@ -1,0 +1,41 @@
+<p-dialog [(visible)]="viewDialog" [style]="{width: '70vw'}" header="{{'actionDemande.tabPan' | translate}}" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <p-tabView>
+            <p-tabPanel header="{{'actionDemande.tabPan' | translate}}">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                                <div class="flex flex-col gap-2">
+                                    <label class="text-sm font-semibold" for="1">{{'actionDemande.code' | translate}}</label>
+                                    <input  type="text" pInputText [disabled]="true" placeholder="{{'actionDemande.code' | translate}}" autofocus  id="1" [ngModel]="item.code">
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="text-sm font-semibold" for="2">{{'actionDemande.libelle' | translate}}</label>
+                                    <input  type="text" pInputText [disabled]="true" placeholder="{{'actionDemande.libelle' | translate}}" autofocus  id="2" [ngModel]="item.libelle">
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label class="text-sm font-semibold" for="3">{{'actionDemande.description' | translate}}</label>
+                                    <textarea id="3" pTextarea rows="5" cols="30" [disabled]="true" placeholder="{{'actionDemande.description' | translate}}"  [ngModel]="item.description"></textarea>
+                                </div>
+                                <div class="flex flex-col gap-2">
+
+                                    <label class="text-sm font-semibold" for="4">{{'actionDemande.actif' | translate}}</label>
+
+                                    <p-inputSwitch id="4"  [disabled]="true" [ngModel]="item.actif"></p-inputSwitch>
+
+                                </div>
+                </div>
+            </p-tabPanel>
+
+        </p-tabView>
+
+    </ng-template>
+
+    <ng-template pTemplate="footer" >
+        <div class="flex justify-end p-4">
+            <div>
+                <button class="border border-gray-400 font-semibold py-2 px-4 rounded shadow" (click)="hideViewDialog()">
+                    <i class="pi pi-times"></i> Annuler
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
