@@ -1,0 +1,48 @@
+stages:
+  - build
+  - test
+  - package
+
+variables:
+  IMAGE_NAME: "demandesystemms1"
+  IMAGE_TAG: "v1"
+
+build_backend:        
+  stage: build
+  image: maven:3.8.4-openjdk-17
+  script:
+    - cd backend-ms1
+    - mvn clean package -DskipTests
+  artifacts:
+    paths:
+      - backend-ms1/target/*.jar
+
+test_backend:
+  stage: test
+  image: maven:3.8.4-openjdk-17
+  services:
+    - name: mysql:8.0
+      alias: db_test
+  variables:
+    MYSQL_DATABASE: zyn
+    MYSQL_ROOT_PASSWORD: root
+    SPRING_DATASOURCE_URL: jdbc:mysql://db_test:3306/zyn?createDatabaseIfNotExist=true
+    SPRING_DATASOURCE_USERNAME: root
+    SPRING_DATASOURCE_PASSWORD: root
+    SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    SPRING_KAFKA_ENABLED: "false"
+  script:
+    - cd backend-ms1
+    - mvn test -Dmaven.test.failure.ignore=true 
+
+push_to_dockerhub:
+  stage: package
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd backend-ms1
+    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+    - docker push $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
