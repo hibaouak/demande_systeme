@@ -2,12 +2,27 @@ stages:
   - build
   - test
   - package
+  - deploy
 
 variables:
-  IMAGE_NAME: "demandesystemms1"
+  # Images names
+  BACKEND_IMAGE: "demandesystemms1"
+  FRONTEND_IMAGE: "demandesystem-front"
   IMAGE_TAG: "v1"
+  
+  # Docker configuration
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
 
-build_backend:        
+# Cache Maven dependencies
+cache:
+  paths:
+    - backend-ms1/.m2/repository/
+    - frontend/node_modules/
+
+# ==================== BACKEND JOBS ====================
+
+build_backend:
   stage: build
   image: maven:3.8.4-openjdk-17
   script:
@@ -16,6 +31,7 @@ build_backend:
   artifacts:
     paths:
       - backend-ms1/target/*.jar
+    expire_in: 1 hour
 
 test_backend:
   stage: test
@@ -26,23 +42,99 @@ test_backend:
   variables:
     MYSQL_DATABASE: zyn
     MYSQL_ROOT_PASSWORD: root
-    SPRING_DATASOURCE_URL: jdbc:mysql://db_test:3306/zyn?createDatabaseIfNotExist=true
+    SPRING_DATASOURCE_URL: jdbc:mysql://db_test:3306/zyn?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     SPRING_DATASOURCE_USERNAME: root
     SPRING_DATASOURCE_PASSWORD: root
     SPRING_JPA_HIBERNATE_DDL_AUTO: update
     SPRING_KAFKA_ENABLED: "false"
   script:
     - cd backend-ms1
-    - mvn test -Dmaven.test.failure.ignore=true 
+    - mvn test
+  dependencies:
+    - build_backend
 
-push_to_dockerhub:
+# ==================== FRONTEND JOBS ====================
+
+build_frontend:
+  stage: build
+  image: node:16-alpine
+  script:
+    - cd frontend
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/build/
+      - frontend/.npm/
+    expire_in: 1 hour
+
+test_frontend:
+  stage: test
+  image: node:16-alpine
+  script:
+    - cd frontend
+    - npm ci --cache .npm --prefer-offline
+    - npm test -- --watchAll=false --passWithNoTests
+  dependencies:
+    - build_frontend
+
+# ==================== DOCKER PUSH JOBS ====================
+
+.push_to_dockerhub: &push_to_dockerhub
   stage: package
-  image: docker:latest
+  image: docker:20.10.16
   services:
-    - docker:dind
+    - docker:20.10.16-dind
+  before_script:
+    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+    - docker version
+  after_script:
+    - docker logout
+
+push_backend_to_dockerhub:
+  <<: *push_to_dockerhub
   script:
     - cd backend-ms1
-    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
-    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
-    - docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
-    - docker push $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+    - echo "Building backend image..."
+    - docker build -t $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG .
+    - echo "Pushing backend image to Docker Hub..."
+    - docker push $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG
+  dependencies:
+    - build_backend
+  only:
+    - main
+    - master
+
+push_frontend_to_dockerhub:
+  <<: *push_to_dockerhub
+  script:
+    - cd frontend
+    - echo "Building frontend image..."
+    - docker build -t $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG .
+    - echo "Pushing frontend image to Docker Hub..."
+    - docker push $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG
+  dependencies:
+    - build_frontend
+  only:
+    - main
+    - master
+
+# ==================== OPTIONAL DEPLOYMENT ====================
+
+deploy_to_server:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no user@yourserver.com "
+        docker pull $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG &&
+        docker pull $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG &&
+        docker-compose down &&
+        docker-compose up -d
+      "
+  only:
+    - main
+  when: manual  # Déploiement manuel (optionnel)
