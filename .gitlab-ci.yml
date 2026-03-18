@@ -2,27 +2,14 @@ stages:
   - build
   - test
   - package
-  - deploy
 
 variables:
-  # Images names
-  BACKEND_IMAGE: "demandesystemms1"
-  FRONTEND_IMAGE: "demandesystem-front"
+  IMAGE_NAME: "demandesystemms1"
   IMAGE_TAG: "v1"
-  
-  # Docker configuration
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
-# Cache Maven dependencies
-cache:
-  paths:
-    - backend-ms1/.m2/repository/
-    - frontend/node_modules/
-
-# ==================== BACKEND JOBS ====================
-
-build_backend:
+build_backend:        
   stage: build
   image: maven:3.8.4-openjdk-17
   script:
@@ -53,88 +40,25 @@ test_backend:
   dependencies:
     - build_backend
 
-# ==================== FRONTEND JOBS ====================
-
-build_frontend:
-  stage: build
-  image: node:16-alpine
-  script:
-    - cd frontend
-    - npm ci --cache .npm --prefer-offline
-    - npm run build
-  artifacts:
-    paths:
-      - frontend/build/
-      - frontend/.npm/
-    expire_in: 1 hour
-
-test_frontend:
-  stage: test
-  image: node:16-alpine
-  script:
-    - cd frontend
-    - npm ci --cache .npm --prefer-offline
-    - npm test -- --watchAll=false --passWithNoTests
-  dependencies:
-    - build_frontend
-
-# ==================== DOCKER PUSH JOBS ====================
-
-.push_to_dockerhub: &push_to_dockerhub
+push_to_dockerhub:
   stage: package
-  image: docker:20.10.16
+  image: docker:latest
   services:
-    - docker:20.10.16-dind
+    - docker:dind
   before_script:
-    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+    - echo "Connexion à Docker Hub..."
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - docker version
-  after_script:
-    - docker logout
-
-push_backend_to_dockerhub:
-  <<: *push_to_dockerhub
   script:
     - cd backend-ms1
-    - echo "Building backend image..."
-    - docker build -t $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG .
-    - echo "Pushing backend image to Docker Hub..."
-    - docker push $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG
+    - echo "Construction de l'image..."
+    - docker build -t $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG .
+    - echo "Push de l'image vers Docker Hub..."
+    - docker push $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+  after_script:
+    - docker logout
   dependencies:
     - build_backend
   only:
     - main
     - master
-
-push_frontend_to_dockerhub:
-  <<: *push_to_dockerhub
-  script:
-    - cd frontend
-    - echo "Building frontend image..."
-    - docker build -t $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG .
-    - echo "Pushing frontend image to Docker Hub..."
-    - docker push $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG
-  dependencies:
-    - build_frontend
-  only:
-    - main
-    - master
-
-# ==================== OPTIONAL DEPLOYMENT ====================
-
-deploy_to_server:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - apk add --no-cache openssh-client
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - ssh -o StrictHostKeyChecking=no user@yourserver.com "
-        docker pull $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG &&
-        docker pull $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG &&
-        docker-compose down &&
-        docker-compose up -d
-      "
-  only:
-    - main
-  when: manual  # Déploiement manuel (optionnel)
