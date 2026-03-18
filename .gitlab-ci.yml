@@ -4,18 +4,38 @@ stages:
   - package
 
 variables:
-  IMAGE_NAME: "demandesystemms1"
+  # Backend
+  BACKEND_IMAGE: "demandesystemms1"
+  # Frontend
+  FRONTEND_IMAGE: "demandesystem-front"
+  # Tag commun
   IMAGE_TAG: "v1"
+  
+  # Maven optimisé
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+# Cache global pour Maven
+cache:
+  paths:
+    - .m2/repository/
+    - backend-ms1/target/
+    - frontend/node_modules/
+  key: "$CI_COMMIT_REF_NAME"
+
+# ==================== BACKEND JOBS ====================
 
 build_backend:        
   stage: build
   image: maven:3.8.4-openjdk-17
   script:
     - cd backend-ms1
-    - mvn clean package -DskipTests
+    - echo "📦 Compilation du backend..."
+    - mvn $MAVEN_CLI_OPTS clean package -DskipTests
   artifacts:
     paths:
       - backend-ms1/target/*.jar
+    expire_in: 1 hour
 
 test_backend:
   stage: test
@@ -24,25 +44,101 @@ test_backend:
     - name: mysql:8.0
       alias: db_test
   variables:
+    # MySQL
     MYSQL_DATABASE: zyn
     MYSQL_ROOT_PASSWORD: root
-    SPRING_DATASOURCE_URL: jdbc:mysql://db_test:3306/zyn?createDatabaseIfNotExist=true
+    # Spring
+    SPRING_DATASOURCE_URL: jdbc:mysql://db_test:3306/zyn?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     SPRING_DATASOURCE_USERNAME: root
     SPRING_DATASOURCE_PASSWORD: root
     SPRING_JPA_HIBERNATE_DDL_AUTO: update
     SPRING_KAFKA_ENABLED: "false"
   script:
     - cd backend-ms1
-    - mvn test -Dmaven.test.failure.ignore=true 
+    - echo "🧪 Exécution des tests backend..."
+    - mvn test $MAVEN_CLI_OPTS -Dmaven.test.failure.ignore=true
+  artifacts:
+    when: always
+    paths:
+      - backend-ms1/target/surefire-reports/
+    reports:
+      junit:
+        - backend-ms1/target/surefire-reports/TEST-*.xml
+  dependencies:
+    - build_backend
 
-push_to_dockerhub:
+push_backend:
   stage: package
   image: docker:latest
   services:
     - docker:dind
+  before_script:
+    - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
   script:
     - cd backend-ms1
+    - echo "🏗️ Construction de l'image backend..."
+    - docker build -t $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG .
+    - echo "🚀 Push de l'image backend..."
+    - docker push $DOCKER_USER/$BACKEND_IMAGE:$IMAGE_TAG
+  after_script:
+    - docker logout
+  dependencies:
+    - build_backend
+  only:
+    - main
+    - master
+
+# ==================== FRONTEND JOBS ====================
+
+build_frontend:
+  stage: build
+  image: node:18-alpine
+  script:
+    - cd frontend
+    - echo "📦 Installation des dépendances frontend..."
+    - npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+    - echo "🏗️ Build du frontend..."
+    - npm run build -- --configuration=production
+  artifacts:
+    paths:
+      - frontend/dist/
+      - frontend/build/
+    expire_in: 1 hour
+
+test_frontend:
+  stage: test
+  image: node:18-alpine
+  script:
+    - cd frontend
+    - echo "🧪 Exécution des tests frontend..."
+    - npm test -- --watchAll=false --passWithNoTests --ci
+  artifacts:
+    when: always
+    paths:
+      - frontend/coverage/
+    reports:
+      junit:
+        - frontend/junit.xml
+  dependencies:
+    - build_frontend
+
+push_frontend:
+  stage: package
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
     - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
-    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
-    - docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
-    - docker push $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+  script:
+    - cd frontend
+    - echo "🏗️ Construction de l'image frontend..."
+    - docker build --build-arg PROFILE=prod -t $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG .
+    - echo "🚀 Push de l'image frontend..."
+    - docker push $DOCKER_USER/$FRONTEND_IMAGE:$IMAGE_TAG
+  after_script:
+    - docker logout
+  dependencies:
+    - build_frontend
+  only:
+    - main
+    - master
