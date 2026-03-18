@@ -1,5 +1,5 @@
-# Use a lightweight OpenJDK runtime as a base image
-FROM openjdk:17-slim
+# Use Eclipse Temurin with correct tag
+FROM eclipse-temurin:17-jre
 
 # Create a non-root user for security
 RUN addgroup --system --gid 1001 appuser && \
@@ -11,9 +11,8 @@ WORKDIR /app
 # Copy the packaged JAR file
 COPY target/*.jar app.jar
 
-# Copy SSL certificates (if they exist)
-COPY zyn/ssl/localhost/keystore.p12 ./zyn/ssl/localhost/keystore.p12
-COPY zyn/ssl/prod/keystore.p12 ./zyn/ssl/prod/keystore.p12
+# Create SSL directories
+RUN mkdir -p ./zyn/ssl/localhost ./zyn/ssl/prod
 
 # Set proper permissions
 RUN chown -R appuser:appuser /app
