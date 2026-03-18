@@ -1,18 +1,28 @@
-# Utiliser une image Eclipse Temurin (maintenue par la communauté Adoptium)
-FROM eclipse-temurin:17-jdk-alpine
+# Use a lightweight OpenJDK runtime as a base image
+FROM openjdk:17-slim
 
-# Créer un répertoire de travail
+# Create a non-root user for security
+RUN addgroup --system --gid 1001 appuser && \
+    adduser --system --uid 1001 --gid 1001 appuser
+
+# Create app directory
 WORKDIR /app
 
-# Copier le JAR
+# Copy the packaged JAR file
 COPY target/*.jar app.jar
 
-# Copier les certificats SSL
+# Copy SSL certificates (if they exist)
 COPY zyn/ssl/localhost/keystore.p12 ./zyn/ssl/localhost/keystore.p12
 COPY zyn/ssl/prod/keystore.p12 ./zyn/ssl/prod/keystore.p12
 
-# Exposer le port
+# Set proper permissions
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose the port
 EXPOSE 8036
 
-# Commande d'exécution
+# Define the command to run the application
 CMD ["java", "-jar", "app.jar"]
